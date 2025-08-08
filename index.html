@@ -82,7 +82,7 @@
         // =======================================================================
         // URL APPS SCRIPT ANDA
         // =======================================================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVPuRb957p3X_u79LNn8XkYTj5fLC0M_d5VllCPO-AcJSiNtqxMZU2wD4exau8r3-9/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHEivEQClmzNcYDNzFE7ET4O7fNzl7doxNnhvOX77ZHfXlc78nAPQUzgnsO6cMYkYh/exec";
         // =======================================================================
 
         // --- DOM Elements ---
@@ -153,13 +153,52 @@
         }
         
         function buildMenus(role) {
-            // ... (Fungsi buildMenus tetap sama)
+            const menuItems = [
+                { id: 'dashboard', icon: 'layout-dashboard', label: 'Dashboard' },
+                { id: 'inputAbsen', icon: 'file-pen-line', label: 'Input Absen Baru' },
+                { id: 'manajemenSiswa', icon: 'users', label: 'Manajemen Siswa' },
+                { id: 'laporan', icon: 'bar-chart-3', label: 'Laporan Interaktif' },
+            ];
+
+            const adminMenuItems = [
+                { id: 'validasiSantri', icon: 'user-check', label: 'Validasi Santri Baru' },
+                { id: 'panelKelulusan', icon: 'graduation-cap', label: 'Panel Kelulusan' },
+            ];
+
+            mainNav.innerHTML = menuItems.map(item => `
+                <a href="#" id="nav-${item.id}" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
+                    <i data-lucide="${item.icon}" class="w-5 h-5 mr-3"></i>${item.label}
+                </a>
+            `).join('');
+
+            if (role === 'Admin') {
+                adminMenuContainer.classList.remove('hidden');
+                adminMenu.innerHTML = adminMenuItems.map(item => `
+                    <a href="#" id="nav-${item.id}" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
+                        <i data-lucide="${item.icon}" class="w-5 h-5 mr-3"></i>${item.label}
+                    </a>
+                `).join('');
+            } else {
+                adminMenuContainer.classList.add('hidden');
+                adminMenu.innerHTML = '';
+            }
+
+            // Tambahkan event listener untuk semua link menu yang baru dibuat
+            document.querySelectorAll('nav a, #main-nav a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = e.currentTarget.id.replace('nav-', '');
+                    navigateTo(pageId);
+                });
+            });
+            
+            lucide.createIcons();
         }
 
         function navigateTo(pageId) {
             mainContent.innerHTML = pages[pageId] || `<p>Halaman tidak ditemukan.</p>`;
             
-            document.querySelectorAll('nav a').forEach(link => {
+            document.querySelectorAll('nav a, #main-nav a').forEach(link => {
                 link.classList.remove('bg-green-900');
                 if (link.id === `nav-${pageId}`) {
                     link.classList.add('bg-green-900');
@@ -177,8 +216,8 @@
             const kegiatanContainer = document.getElementById('kegiatan-container');
 
             // Tampilkan loading skeleton
-            rekapContainer.innerHTML = Array(4).fill('<div class="bg-gray-200 p-6 rounded-lg shadow-md animate-pulse"></div>').join('');
-            kegiatanContainer.innerHTML = '<div class="bg-gray-200 h-8 w-3/4 rounded animate-pulse"></div>';
+            rekapContainer.innerHTML = Array(4).fill('<div class="bg-gray-200 p-6 rounded-lg shadow-md animate-pulse h-32"></div>').join('');
+            kegiatanContainer.innerHTML = '<div class="bg-gray-200 h-24 w-full rounded animate-pulse"></div>';
             
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getDashboardData`);
@@ -236,25 +275,43 @@
             }
         }
 
-        loginForm.addEventListener('submit', function(e) { /* ... (Fungsi login tetap sama) */ });
-        logoutButton.addEventListener('click', function(e) { /* ... (Fungsi logout tetap sama) */ });
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            loginButtonText.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
+            loginError.textContent = '';
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            const url = `${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        localStorage.setItem('myAlbanaUser', JSON.stringify(data.user));
+                        showApp(data.user);
+                    } else {
+                        loginError.textContent = 'Email atau password salah.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loginError.textContent = 'Terjadi kesalahan. Coba lagi.';
+                })
+                .finally(() => {
+                    loginButtonText.classList.remove('hidden');
+                    loginSpinner.classList.add('hidden');
+                });
+        });
+
+        logoutButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('myAlbanaUser');
+            showLogin();
+        });
 
         checkLoginStatus();
         lucide.createIcons();
     </script>
 </body>
 </html>
-```
-
-### Tugasmu Sekarang (Penting!)
-
-1.  **Update Apps Script**: Ganti kode di Apps Script-mu dengan yang baru (v2).
-2.  **RE-DEPLOY**: Ini langkah **wajib**. Klik lagi **Deploy > New deployment**. Ikuti prosesnya sampai selesai. Kamu **tidak perlu** meng-copy URL baru, cukup buat deployment baru agar perubahanmu aktif.
-3.  **Isi Data Contoh**:
-    * Di tab `Siswa`, isi beberapa baris data siswa dengan status "Aktif".
-    * Di tab `Absensi`, buat beberapa baris data untuk **hari ini** dengan berbagai status (Hadir, Izin, Alfa) dan waktu pertemuan (Fajar, Pagi, dll).
-    * Di tab `Kalender`, buat satu kegiatan dengan tanggal di masa depan.
-4.  **Update GitHub**: Ganti file `index.html` di GitHub dengan kode terbaru dari Canvas.
-5.  **Hard Refresh**: Buka websitemu dan lakukan Hard Refresh (`Ctrl+Shift+R`).
-
-Sekarang, dashboard-mu seharusnya akan menampilkan data rekap absensi dan kegiatan yang kamu masukkan di Google Sheets. Keren k
