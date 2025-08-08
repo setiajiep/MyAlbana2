@@ -155,41 +155,54 @@
 
         // 1. Pantau status login pengguna
         onAuthStateChanged(auth, user => {
+            console.log("onAuthStateChanged terpicu...");
             if (user) {
-                // Jika ada user yang login
+                console.log("User terdeteksi dengan UID:", user.uid);
                 loginContainer.classList.add('hidden');
                 appContainer.classList.remove('hidden');
-                fetchUserData(user);
+                
+                // Memberi jeda singkat untuk memastikan koneksi Firestore siap
+                setTimeout(() => {
+                    console.log("Memulai fetchUserData setelah jeda...");
+                    fetchUserData(user);
+                }, 200); // Jeda 200 milidetik
+
             } else {
-                // Jika tidak ada user yang login
+                console.log("Tidak ada user yang login.");
                 loginContainer.classList.remove('hidden');
                 appContainer.classList.add('hidden');
-                adminMenu.classList.add('hidden'); // Sembunyikan menu admin saat logout
+                adminMenu.classList.add('hidden');
             }
         });
 
         // 2. Fungsi untuk mengambil data user dan mengatur UI
         async function fetchUserData(user) {
+            console.log(`Mencari dokumen di Firestore: users/${user.uid}`);
             const userDocRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userDocRef);
+            
+            try {
+                const userDoc = await getDoc(userDocRef);
 
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                console.log("Data user:", userData);
-                document.getElementById('user-name').textContent = userData.namaLengkap;
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    console.log("SUKSES: Dokumen user ditemukan:", userData);
+                    document.getElementById('user-name').textContent = userData.namaLengkap;
 
-                // Tampilkan menu admin jika role-nya adalah "Admin"
-                if (userData.role === 'Admin') {
-                    adminMenu.classList.remove('hidden');
-                    console.log("Role Admin terdeteksi, menampilkan menu admin.");
+                    if (userData.role === 'Admin') {
+                        adminMenu.classList.remove('hidden');
+                        console.log("Role Admin terdeteksi, menampilkan menu admin.");
+                    } else {
+                        adminMenu.classList.add('hidden');
+                        console.log("Role bukan Admin, menyembunyikan menu admin.");
+                    }
                 } else {
+                    console.error("GAGAL: Dokumen user tidak ditemukan di Firestore!");
+                    document.getElementById('user-name').textContent = "Data tidak ada";
                     adminMenu.classList.add('hidden');
-                    console.log("Role bukan Admin, menyembunyikan menu admin.");
                 }
-            } else {
-                console.error("Data user tidak ditemukan di Firestore!");
-                document.getElementById('user-name').textContent = "User tidak ditemukan";
-                adminMenu.classList.add('hidden');
+            } catch (error) {
+                console.error("ERROR saat mengambil data dari Firestore:", error);
+                document.getElementById('user-name').textContent = "Error DB";
             }
         }
 
