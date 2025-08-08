@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyAlBana - Manajemen Santri</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <!-- Container untuk Halaman Login -->
+    <div id="login-container" class="flex items-center justify-center h-screen bg-green-800">
+        <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
+            <div class="text-center">
+                <div class="flex items-center justify-center mb-4">
+                    <i data-lucide="shield-check" class="w-12 h-12 text-green-700"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-800">MyAlBana</h1>
+                <p class="text-slate-500">Sistem Informasi Manajemen Santri</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="email" class="text-sm font-medium text-slate-600">Email</label>
+                    <input id="email" name="email" type="email" required class="w-full px-4 py-2 mt-1 border border-slate-300 rounded-lg focus:ring-green-500 focus:border-green-500" placeholder="admin@example.com">
+                </div>
+                <div>
+                    <label for="password" class="text-sm font-medium text-slate-600">Password</label>
+                    <input id="password" name="password" type="password" required class="w-full px-4 py-2 mt-1 border border-slate-300 rounded-lg focus:ring-green-500 focus:border-green-500" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full px-4 py-3 font-semibold text-white bg-green-700 rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-300">
+                    Login
+                </button>
+            </form>
+            <p id="login-error" class="text-sm text-center text-red-500"></p>
+        </div>
+    </div>
+
+    <!-- Container untuk Aplikasi Utama (awalnya disembunyikan) -->
+    <div id="app-container" class="hidden">
+        <div class="flex h-screen bg-slate-100">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 transform -translate-x-full transition-transform duration-300 ease-in-out bg-green-800 text-white md:relative md:translate-x-0">
+                <!-- Konten sidebar yang sudah kita buat sebelumnya -->
+                <div class="flex items-center justify-center px-4 py-6">
+                    <i data-lucide="shield-check" class="w-8 h-8 mr-2"></i>
+                    <span class="text-2xl font-bold">MyAlBana</span>
+                </div>
+                <nav class="flex-1 px-4 space-y-2">
+                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 bg-green-900 rounded-lg">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>Dashboard
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
+                        <i data-lucide="file-pen-line" class="w-5 h-5 mr-3"></i>Input Absen Baru
+                    </a>
+                    <!-- Menu lainnya -->
+                </nav>
+                <div class="absolute bottom-0 left-0 w-full p-4 border-t border-green-700">
+                    <div class="flex items-center">
+                        <img id="user-avatar" src="https://placehold.co/40x40/e2e8f0/475569?text=U" alt="User Avatar" class="w-10 h-10 rounded-full">
+                        <div class="ml-3">
+                            <p id="user-name" class="font-semibold text-white">Nama User</p>
+                            <a href="#" id="logout-button" class="text-sm text-green-200 hover:text-white">Logout <i data-lucide="log-out" class="inline w-4 h-4"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="flex-1 flex flex-col">
+                <header class="flex items-center justify-between p-4 bg-white border-b">
+                    <button id="menu-button" class="p-2 text-slate-600 rounded-md md:hidden hover:bg-slate-100">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <h1 class="text-xl font-semibold text-slate-700">Dashboard</h1>
+                    <div></div>
+                </header>
+                <main class="flex-1 p-6 overflow-y-auto">
+                    <!-- Konten utama akan muncul di sini -->
+                </main>
+            </div>
+            <div id="sidebar-overlay" class="fixed inset-0 z-20 bg-black bg-opacity-50 hidden md:hidden"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import fungsi yang kita butuhkan dari Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // =================================================================================
+        // GANTI DENGAN FIREBASE CONFIG KAMU DI SINI
+        // =================================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            authDomain: "proyek-kamu.firebaseapp.com",
+            projectId: "proyek-kamu",
+            storageBucket: "proyek-kamu.appspot.com",
+            messagingSenderId: "...",
+            appId: "1:..."
+        };
+        // =================================================================================
+
+        // Inisialisasi Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Elemen-elemen HTML ---
+        const loginContainer = document.getElementById('login-container');
+        const appContainer = document.getElementById('app-container');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutButton = document.getElementById('logout-button');
+        
+        // --- LOGIKA UTAMA APLIKASI ---
+
+        // 1. Pantau status login pengguna
+        // Fungsi ini akan otomatis berjalan saat halaman dimuat dan setiap kali status login berubah
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                // Jika ada user yang login
+                console.log("User terdeteksi:", user.email);
+                loginContainer.classList.add('hidden'); // Sembunyikan halaman login
+                appContainer.classList.remove('hidden'); // Tampilkan aplikasi utama
+                
+                // Ambil data user dari Firestore untuk mendapatkan role
+                fetchUserData(user);
+
+            } else {
+                // Jika tidak ada user yang login
+                console.log("Tidak ada user yang login.");
+                loginContainer.classList.remove('hidden'); // Tampilkan halaman login
+                appContainer.classList.add('hidden'); // Sembunyikan aplikasi utama
+            }
+        });
+
+        // 2. Fungsi untuk mengambil data user (termasuk role) dari Firestore
+        async function fetchUserData(user) {
+            const userDocRef = doc(db, "users", user.uid); // Mengambil dokumen user berdasarkan UID-nya
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                console.log("Data user:", userData);
+                document.getElementById('user-name').textContent = userData.namaLengkap;
+                // Di sini nanti kita akan tambahkan logika untuk menampilkan menu berdasarkan userData.role
+            } else {
+                console.error("Data user tidak ditemukan di Firestore!");
+                // Handle kasus jika user terdaftar di Auth tapi datanya tidak ada di Firestore
+            }
+        }
+
+        // 3. Tambahkan event listener untuk form login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Mencegah form dari refresh halaman
+            
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            
+            console.log(`Mencoba login dengan email: ${email}`);
+            loginError.textContent = ''; // Bersihkan pesan error sebelumnya
+
+            // Panggil fungsi login dari Firebase
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Berhasil login
+                    const user = userCredential.user;
+                    console.log("Login berhasil!", user);
+                })
+                .catch((error) => {
+                    // Gagal login
+                    console.error("Error login:", error.code, error.message);
+                    loginError.textContent = "Email atau password salah. Silakan coba lagi.";
+                });
+        });
+
+        // 4. Tambahkan event listener untuk tombol logout
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            signOut(auth).then(() => {
+                console.log("Logout berhasil.");
+            }).catch((error) => {
+                console.error("Error logout:", error);
+            });
+        });
+
+        // Panggil fungsi untuk membuat ikon Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>
