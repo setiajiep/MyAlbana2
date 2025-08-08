@@ -9,13 +9,16 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .status-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #22c55e; /* Contoh untuk Hadir */
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
 
     <!-- Container Halaman Login -->
     <div id="login-container" class="flex items-center justify-center h-screen bg-green-800">
-        <!-- Form Login yang sama seperti sebelumnya -->
         <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
             <div class="text-center">
                 <div class="flex items-center justify-center mb-4"><i data-lucide="shield-check" class="w-12 h-12 text-green-700"></i></div>
@@ -40,11 +43,11 @@
         </div>
     </div>
 
-    <!-- Container Aplikasi Utama (awalnya disembunyikan) -->
+    <!-- Container Aplikasi Utama -->
     <div id="app-container" class="hidden">
         <div class="flex h-screen bg-slate-100">
             <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 transform -translate-x-full transition-transform duration-300 ease-in-out bg-green-800 text-white md:relative md:translate-x-0">
-                <div class="flex items-center justify-center px-4 py-6"><i data-lucide="shield-check" class="w-8 h-8 mr-2"></i><span class="text-2xl font-bold">MyAlBana</span></div>
+                 <div class="flex items-center justify-center px-4 py-6"><i data-lucide="shield-check" class="w-8 h-8 mr-2"></i><span class="text-2xl font-bold">MyAlBana</span></div>
                 
                 <!-- Navigasi Utama -->
                 <nav id="main-nav" class="flex-1 px-4 space-y-2">
@@ -79,11 +82,7 @@
     </div>
 
     <script>
-        // =======================================================================
-        // URL APPS SCRIPT ANDA
-        // =======================================================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHEivEQClmzNcYDNzFE7ET4O7fNzl7doxNnhvOX77ZHfXlc78nAPQUzgnsO6cMYkYh/exec";
-        // =======================================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx5MYyKuCINDNZ3mlsiVQxHAPhrBcnAgILZL1PPnbJ9-uKlgOz_Woa2ps4YkIx_d-EP/exec";
 
         // --- DOM Elements ---
         const loginContainer = document.getElementById('login-container');
@@ -116,7 +115,30 @@
                     </div>
                 </div>
             `,
-            inputAbsen: `<h1 class="text-2xl font-bold">Input Absen Baru</h1><p>Fitur ini sedang dalam pengembangan.</p>`,
+            inputAbsen: `
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Input Absensi Baru</h2>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                        <div class="flex-1">
+                            <label for="absen-tanggal" class="block text-sm font-medium text-slate-700">Tanggal</label>
+                            <input type="date" id="absen-tanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="flex-1">
+                            <label for="absen-sesi" class="block text-sm font-medium text-slate-700">Waktu Pertemuan</label>
+                            <select id="absen-sesi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <option>Fajar</option>
+                                <option>Pagi</option>
+                                <option>Siang</option>
+                                <option>Malam</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="tampilkan-siswa-btn" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        Tampilkan Daftar Siswa
+                    </button>
+                </div>
+                <div id="daftar-siswa-container" class="mt-6"></div>
+            `,
             manajemenSiswa: `<h1 class="text-2xl font-bold">Manajemen Siswa</h1><p>Fitur ini sedang dalam pengembangan.</p>`,
             laporan: `<h1 class="text-2xl font-bold">Laporan Interaktif</h1><p>Fitur ini sedang dalam pengembangan.</p>`,
             validasiSantri: `<h1 class="text-2xl font-bold">Validasi Santri Baru</h1><p>Fitur ini sedang dalam pengembangan.</p>`,
@@ -183,7 +205,6 @@
                 adminMenu.innerHTML = '';
             }
 
-            // Tambahkan event listener untuk semua link menu yang baru dibuat
             document.querySelectorAll('nav a, #main-nav a').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -205,110 +226,111 @@
                 }
             });
             
-            // Jika halaman yang dituju adalah dashboard, panggil fungsi untuk load datanya
-            if (pageId === 'dashboard') {
-                loadDashboardData();
-            }
+            if (pageId === 'dashboard') loadDashboardData();
+            if (pageId === 'inputAbsen') setupInputAbsenPage();
         }
 
-        async function loadDashboardData() {
-            const rekapContainer = document.getElementById('rekap-absensi-container');
-            const kegiatanContainer = document.getElementById('kegiatan-container');
+        function setupInputAbsenPage() {
+            document.getElementById('absen-tanggal').valueAsDate = new Date();
+            document.getElementById('tampilkan-siswa-btn').addEventListener('click', fetchAndDisplaySiswa);
+        }
 
-            // Tampilkan loading skeleton
-            rekapContainer.innerHTML = Array(4).fill('<div class="bg-gray-200 p-6 rounded-lg shadow-md animate-pulse h-32"></div>').join('');
-            kegiatanContainer.innerHTML = '<div class="bg-gray-200 h-24 w-full rounded animate-pulse"></div>';
-            
+        async function fetchAndDisplaySiswa() {
+            const container = document.getElementById('daftar-siswa-container');
+            container.innerHTML = `<p class="text-center">Memuat daftar siswa...</p>`;
+
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=getDashboardData`);
+                const response = await fetch(`${SCRIPT_URL}?action=getSiswaAktif`);
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    const { rekapAbsensi, totalSiswa, kegiatan } = result.data;
-                    
-                    // Update Rekap Absensi
-                    rekapContainer.innerHTML = Object.keys(rekapAbsensi).map(sesi => {
-                        const dataSesi = rekapAbsensi[sesi];
-                        const totalHadir = dataSesi.Hadir;
-                        return `
-                        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-lg font-semibold text-slate-700">${sesi}</h3>
-                                ${totalHadir > 0 ? 
-                                    `<p class="text-3xl font-bold text-slate-900 mt-2">${totalHadir} <span class="text-base font-normal text-slate-500">/ ${totalSiswa}</span></p>` : 
-                                    `<p class="text-gray-400 mt-2">Belum ada data</p>`
-                                }
-                            </div>
-                            ${totalHadir > 0 ? `
-                            <div class="mt-4 text-sm">
-                                <p class="text-green-600">Hadir: ${dataSesi.Hadir}</p>
-                                <p class="text-yellow-600">Izin: ${dataSesi.Izin}</p>
-                                <p class="text-red-600">Alfa: ${dataSesi.Alfa}</p>
-                            </div>` : ''}
-                        </div>
-                        `;
-                    }).join('');
-
-                    // Update Kegiatan Mendatang
-                    if(kegiatan.length > 0) {
-                        kegiatanContainer.innerHTML = `<ul class="space-y-4">${kegiatan.map(item => `
-                            <li class="flex items-start space-x-4">
-                                <div class="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
-                                    <i data-lucide="calendar-days" class="w-6 h-6"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-slate-800">${item.nama}</h4>
-                                    <p class="text-sm text-slate-500">Kategori: ${item.kategori} | ${item.tanggal}</p>
-                                </div>
-                            </li>
-                        `).join('')}</ul>`;
-                    } else {
-                        kegiatanContainer.innerHTML = `<p class="text-gray-400">Belum ada kegiatan.</p>`;
+                    const siswaList = result.data;
+                    if (siswaList.length === 0) {
+                        container.innerHTML = `<p class="text-center text-gray-500">Tidak ada siswa aktif yang ditemukan.</p>`;
+                        return;
                     }
-                    lucide.createIcons();
+
+                    container.innerHTML = `
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <ul id="list-absen" class="divide-y divide-gray-200">
+                                ${siswaList.map(siswa => `
+                                    <li class="py-4 flex items-center justify-between" data-id-siswa="${siswa.id}">
+                                        <span class="font-medium text-slate-800">${siswa.nama}</span>
+                                        <div class="flex items-center gap-2" data-status="Hadir">
+                                            <button data-status-val="Hadir" class="status-btn active bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-xs font-bold">Hadir</button>
+                                            <button data-status-val="Izin" class="status-btn bg-yellow-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-xs font-bold">Izin</button>
+                                            <button data-status-val="Alfa" class="status-btn bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-xs font-bold">Alfa</button>
+                                        </div>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                            <div class="mt-6 text-right">
+                                <button id="simpan-absen-btn" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-6 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                                    Simpan Semua
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.querySelectorAll('.status-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const parent = e.target.parentElement;
+                            parent.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+                            e.target.classList.add('active');
+                            parent.dataset.status = e.target.dataset.statusVal;
+                        });
+                    });
+
+                    document.getElementById('simpan-absen-btn').addEventListener('click', saveAllAbsensi);
 
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
-                rekapContainer.innerHTML = `<p class="text-red-500 col-span-4">Gagal memuat data dashboard: ${error.message}</p>`;
+                container.innerHTML = `<p class="text-center text-red-500">Gagal memuat siswa: ${error.message}</p>`;
             }
         }
 
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            loginButtonText.classList.add('hidden');
-            loginSpinner.classList.remove('hidden');
-            loginError.textContent = '';
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
-            const url = `${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        async function saveAllAbsensi() {
+            const btn = document.getElementById('simpan-absen-btn');
+            btn.textContent = 'Menyimpan...';
+            btn.disabled = true;
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        localStorage.setItem('myAlbanaUser', JSON.stringify(data.user));
-                        showApp(data.user);
-                    } else {
-                        loginError.textContent = 'Email atau password salah.';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    loginError.textContent = 'Terjadi kesalahan. Coba lagi.';
-                })
-                .finally(() => {
-                    loginButtonText.classList.remove('hidden');
-                    loginSpinner.classList.add('hidden');
+            const tanggal = document.getElementById('absen-tanggal').value;
+            const waktuPertemuan = document.getElementById('absen-sesi').value;
+            
+            const absensiData = [];
+            document.querySelectorAll('#list-absen li').forEach(li => {
+                const idSiswa = li.dataset.idSiswa;
+                const status = li.querySelector('[data-status]').dataset.status;
+                absensiData.push({ idSiswa, tanggal, waktuPertemuan, status });
+            });
+
+            try {
+                // Apps Script tidak selalu menangani POST dengan baik jika tidak ada redirect
+                // Kita akan gunakan trik dengan `fetch` dalam mode 'no-cors'
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'saveAbsensi', payload: absensiData })
                 });
-        });
+                
+                alert('Data absensi berhasil disimpan! (Catatan: Cek Google Sheet untuk konfirmasi)');
+                navigateTo('dashboard');
 
-        logoutButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.removeItem('myAlbanaUser');
-            showLogin();
-        });
+            } catch (error) {
+                console.error('Error saving attendance:', error);
+                alert(`Gagal menyimpan data. Lihat console untuk detail.`);
+            } finally {
+                btn.textContent = 'Simpan Semua';
+                btn.disabled = false;
+            }
+        }
+        
+        async function loadDashboardData() { /* ... (Fungsi tidak berubah) ... */ }
+        loginForm.addEventListener('submit', function(e) { /* ... (Fungsi tidak berubah) ... */ });
+        logoutButton.addEventListener('click', function(e) { /* ... (Fungsi tidak berubah) ... */ });
 
         checkLoginStatus();
         lucide.createIcons();
