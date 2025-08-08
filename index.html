@@ -63,15 +63,32 @@
                     <i data-lucide="shield-check" class="w-8 h-8 mr-2"></i>
                     <span class="text-2xl font-bold">MyAlBana</span>
                 </div>
-                <nav class="flex-1 px-4 space-y-2">
+                <nav id="main-nav" class="flex-1 px-4 space-y-2">
                     <a href="#" class="flex items-center px-4 py-2.5 text-green-100 bg-green-900 rounded-lg">
                         <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>Dashboard
                     </a>
                     <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
                         <i data-lucide="file-pen-line" class="w-5 h-5 mr-3"></i>Input Absen Baru
                     </a>
-                    <!-- Menu lainnya -->
+                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
+                        <i data-lucide="users" class="w-5 h-5 mr-3"></i>Manajemen Siswa
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3"></i>Laporan Interaktif
+                    </a>
                 </nav>
+                
+                <!-- Admin-only Menus -->
+                <div id="admin-menu" class="hidden pt-4 mt-4 border-t border-green-700">
+                    <p class="px-4 py-2 text-xs font-semibold tracking-wider text-green-300 uppercase">Admin Area</p>
+                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
+                        <i data-lucide="user-check" class="w-5 h-5 mr-3"></i>Validasi Santri Baru
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 mr-3"></i>Panel Kelulusan
+                    </a>
+                </div>
+
                 <div class="absolute bottom-0 left-0 w-full p-4 border-t border-green-700">
                     <div class="flex items-center">
                         <img id="user-avatar" src="https://placehold.co/40x40/e2e8f0/475569?text=U" alt="User Avatar" class="w-10 h-10 rounded-full">
@@ -108,15 +125,16 @@
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // =================================================================================
-        // GANTI DENGAN FIREBASE CONFIG KAMU DI SINI
+        // Konfigurasi Firebase Anda
         // =================================================================================
         const firebaseConfig = {
-            apiKey: "AIzaSy...",
-            authDomain: "proyek-kamu.firebaseapp.com",
-            projectId: "proyek-kamu",
-            storageBucket: "proyek-kamu.appspot.com",
-            messagingSenderId: "...",
-            appId: "1:..."
+            apiKey: "AIzaSyBjCGlGgl2gFQliabpoFPbF68cg1aP2M44",
+            authDomain: "myalbana-54ec0.firebaseapp.com",
+            projectId: "myalbana-54ec0",
+            storageBucket: "myalbana-54ec0.appspot.com",
+            messagingSenderId: "586743898865",
+            appId: "1:586743898865:web:3ae4985c94a7c5a127ff50",
+            measurementId: "G-6KZKE2FSFY"
         };
         // =================================================================================
 
@@ -131,77 +149,68 @@
         const loginForm = document.getElementById('login-form');
         const loginError = document.getElementById('login-error');
         const logoutButton = document.getElementById('logout-button');
+        const adminMenu = document.getElementById('admin-menu');
         
         // --- LOGIKA UTAMA APLIKASI ---
 
         // 1. Pantau status login pengguna
-        // Fungsi ini akan otomatis berjalan saat halaman dimuat dan setiap kali status login berubah
         onAuthStateChanged(auth, user => {
             if (user) {
                 // Jika ada user yang login
-                console.log("User terdeteksi:", user.email);
-                loginContainer.classList.add('hidden'); // Sembunyikan halaman login
-                appContainer.classList.remove('hidden'); // Tampilkan aplikasi utama
-                
-                // Ambil data user dari Firestore untuk mendapatkan role
+                loginContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
                 fetchUserData(user);
-
             } else {
                 // Jika tidak ada user yang login
-                console.log("Tidak ada user yang login.");
-                loginContainer.classList.remove('hidden'); // Tampilkan halaman login
-                appContainer.classList.add('hidden'); // Sembunyikan aplikasi utama
+                loginContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+                adminMenu.classList.add('hidden'); // Sembunyikan menu admin saat logout
             }
         });
 
-        // 2. Fungsi untuk mengambil data user (termasuk role) dari Firestore
+        // 2. Fungsi untuk mengambil data user dan mengatur UI
         async function fetchUserData(user) {
-            const userDocRef = doc(db, "users", user.uid); // Mengambil dokumen user berdasarkan UID-nya
+            const userDocRef = doc(db, "users", user.uid);
             const userDoc = await getDoc(userDocRef);
 
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 console.log("Data user:", userData);
                 document.getElementById('user-name').textContent = userData.namaLengkap;
-                // Di sini nanti kita akan tambahkan logika untuk menampilkan menu berdasarkan userData.role
+
+                // Tampilkan menu admin jika role-nya adalah "Admin"
+                if (userData.role === 'Admin') {
+                    adminMenu.classList.remove('hidden');
+                    console.log("Role Admin terdeteksi, menampilkan menu admin.");
+                } else {
+                    adminMenu.classList.add('hidden');
+                    console.log("Role bukan Admin, menyembunyikan menu admin.");
+                }
             } else {
                 console.error("Data user tidak ditemukan di Firestore!");
-                // Handle kasus jika user terdaftar di Auth tapi datanya tidak ada di Firestore
+                document.getElementById('user-name').textContent = "User tidak ditemukan";
+                adminMenu.classList.add('hidden');
             }
         }
 
-        // 3. Tambahkan event listener untuk form login
+        // 3. Event listener untuk form login
         loginForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Mencegah form dari refresh halaman
-            
+            e.preventDefault();
             const email = loginForm.email.value;
             const password = loginForm.password.value;
-            
-            console.log(`Mencoba login dengan email: ${email}`);
-            loginError.textContent = ''; // Bersihkan pesan error sebelumnya
+            loginError.textContent = '';
 
-            // Panggil fungsi login dari Firebase
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    // Berhasil login
-                    const user = userCredential.user;
-                    console.log("Login berhasil!", user);
-                })
                 .catch((error) => {
-                    // Gagal login
                     console.error("Error login:", error.code, error.message);
                     loginError.textContent = "Email atau password salah. Silakan coba lagi.";
                 });
         });
 
-        // 4. Tambahkan event listener untuk tombol logout
+        // 4. Event listener untuk tombol logout
         logoutButton.addEventListener('click', (e) => {
             e.preventDefault();
-            signOut(auth).then(() => {
-                console.log("Logout berhasil.");
-            }).catch((error) => {
-                console.error("Error logout:", error);
-            });
+            signOut(auth);
         });
 
         // Panggil fungsi untuk membuat ikon Lucide
