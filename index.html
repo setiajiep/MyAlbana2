@@ -210,7 +210,7 @@
         // Import fungsi yang kita butuhkan dari Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, enableNetwork } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // =================================================================================
         // Konfigurasi Firebase Anda
@@ -238,34 +238,30 @@
         const loginError = document.getElementById('login-error');
         const logoutButton = document.getElementById('logout-button');
         const adminMenu = document.getElementById('admin-menu');
+        const userNameDisplay = document.getElementById('user-name');
         
         // --- LOGIKA UTAMA APLIKASI ---
 
         // 1. Pantau status login pengguna
-        onAuthStateChanged(auth, user => {
-            console.log("onAuthStateChanged terpicu...");
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log("User terdeteksi dengan UID:", user.uid);
+                // Jika ada user yang login
                 loginContainer.classList.add('hidden');
                 appContainer.classList.remove('hidden');
-                
-                // Memberi jeda singkat untuk memastikan koneksi Firestore siap
-                setTimeout(() => {
-                    console.log("Memulai fetchUserData setelah jeda...");
-                    fetchUserData(user);
-                }, 200); // Jeda 200 milidetik
+                userNameDisplay.textContent = "Memuat data..."; // Tampilkan status loading
+
+                await fetchUserData(user);
 
             } else {
-                console.log("Tidak ada user yang login.");
+                // Jika tidak ada user yang login
                 loginContainer.classList.remove('hidden');
                 appContainer.classList.add('hidden');
-                adminMenu.classList.add('hidden');
+                adminMenu.classList.add('hidden'); // Sembunyikan menu admin saat logout
             }
         });
 
         // 2. Fungsi untuk mengambil data user dan mengatur UI
         async function fetchUserData(user) {
-            console.log(`Mencari dokumen di Firestore: users/${user.uid}`);
             const userDocRef = doc(db, "users", user.uid);
             
             try {
@@ -273,24 +269,20 @@
 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    console.log("SUKSES: Dokumen user ditemukan:", userData);
-                    document.getElementById('user-name').textContent = userData.namaLengkap;
+                    userNameDisplay.textContent = userData.namaLengkap;
 
                     if (userData.role === 'Admin') {
                         adminMenu.classList.remove('hidden');
-                        console.log("Role Admin terdeteksi, menampilkan menu admin.");
                     } else {
                         adminMenu.classList.add('hidden');
-                        console.log("Role bukan Admin, menyembunyikan menu admin.");
                     }
                 } else {
-                    console.error("GAGAL: Dokumen user tidak ditemukan di Firestore!");
-                    document.getElementById('user-name').textContent = "Data tidak ada";
+                    userNameDisplay.textContent = "Data tidak ada";
                     adminMenu.classList.add('hidden');
                 }
             } catch (error) {
                 console.error("ERROR saat mengambil data dari Firestore:", error);
-                document.getElementById('user-name').textContent = "Error DB";
+                userNameDisplay.textContent = "Error DB";
             }
         }
 
@@ -319,3 +311,14 @@
     </script>
 </body>
 </html>
+```
+
+**Tugasmu sekarang (sangat penting):**
+1.  Buka websitemu di `sms.ponpesburhanalbana.web.id`.
+2.  Lakukan **Hard Refresh**:
+    * Di Windows/Linux: Tekan `Ctrl + Shift + R`.
+    * Di Mac: Tekan `Cmd + Shift + R`.
+    Ini akan memaksa browser untuk mengunduh versi terbaru dari file, mengabaikan cache.
+3.  Lihat hasilnya.
+
+Seharusnya sekarang kamu akan lihat tulisan "Memuat data..." sesaat, lalu berubah menjadi namamu, dan menu admin akan muncul. Jika masih gagal, berarti ada masalah lain yang sangat spesifik yang perlu kita selidiki lebih dal
