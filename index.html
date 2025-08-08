@@ -4,35 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyAlBana - Manajemen Santri</title>
-    
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <style>
         body { font-family: 'Inter', sans-serif; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
 
-    <!-- Container untuk Halaman Login -->
+    <!-- Container Halaman Login -->
     <div id="login-container" class="flex items-center justify-center h-screen bg-green-800">
+        <!-- Form Login yang sama seperti sebelumnya -->
         <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
             <div class="text-center">
-                <div class="flex items-center justify-center mb-4">
-                    <i data-lucide="shield-check" class="w-12 h-12 text-green-700"></i>
-                </div>
+                <div class="flex items-center justify-center mb-4"><i data-lucide="shield-check" class="w-12 h-12 text-green-700"></i></div>
                 <h1 class="text-3xl font-bold text-slate-800">MyAlBana</h1>
                 <p class="text-slate-500">Sistem Informasi Manajemen Santri</p>
             </div>
@@ -46,52 +32,24 @@
                     <input id="password" name="password" type="password" required class="w-full px-4 py-2 mt-1 border border-slate-300 rounded-lg focus:ring-green-500 focus:border-green-500" placeholder="••••••••">
                 </div>
                 <button type="submit" class="w-full px-4 py-3 font-semibold text-white bg-green-700 rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-300">
-                    Login
+                    <span id="login-button-text">Login</span>
+                    <span id="login-spinner" class="hidden animate-spin">◌</span>
                 </button>
             </form>
             <p id="login-error" class="text-sm text-center text-red-500"></p>
         </div>
     </div>
 
-    <!-- Container untuk Aplikasi Utama (awalnya disembunyikan) -->
+    <!-- Container Aplikasi Utama (awalnya disembunyikan) -->
     <div id="app-container" class="hidden">
+        <!-- Layout aplikasi utama yang sudah kita buat sebelumnya -->
         <div class="flex h-screen bg-slate-100">
-            <!-- Sidebar -->
-            <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 transform -translate-x-full transition-transform duration-300 ease-in-out bg-green-800 text-white md:relative md:translate-x-0">
-                <!-- Konten sidebar yang sudah kita buat sebelumnya -->
-                <div class="flex items-center justify-center px-4 py-6">
-                    <i data-lucide="shield-check" class="w-8 h-8 mr-2"></i>
-                    <span class="text-2xl font-bold">MyAlBana</span>
-                </div>
-                <nav id="main-nav" class="flex-1 px-4 space-y-2">
-                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 bg-green-900 rounded-lg">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>Dashboard
-                    </a>
-                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
-                        <i data-lucide="file-pen-line" class="w-5 h-5 mr-3"></i>Input Absen Baru
-                    </a>
-                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
-                        <i data-lucide="users" class="w-5 h-5 mr-3"></i>Manajemen Siswa
-                    </a>
-                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
-                        <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3"></i>Laporan Interaktif
-                    </a>
-                </nav>
-                
-                <!-- Admin-only Menus -->
-                <div id="admin-menu" class="hidden pt-4 mt-4 border-t border-green-700">
-                    <p class="px-4 py-2 text-xs font-semibold tracking-wider text-green-300 uppercase">Admin Area</p>
-                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
-                        <i data-lucide="user-check" class="w-5 h-5 mr-3"></i>Validasi Santri Baru
-                    </a>
-                    <a href="#" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
-                        <i data-lucide="graduation-cap" class="w-5 h-5 mr-3"></i>Panel Kelulusan
-                    </a>
-                </div>
-
+            <aside class="fixed inset-y-0 left-0 z-30 w-64 transform -translate-x-full transition-transform duration-300 ease-in-out bg-green-800 text-white md:relative md:translate-x-0">
+                <div class="flex items-center justify-center px-4 py-6"><i data-lucide="shield-check" class="w-8 h-8 mr-2"></i><span class="text-2xl font-bold">MyAlBana</span></div>
+                <nav id="main-nav" class="flex-1 px-4 space-y-2"></nav>
+                <div id="admin-menu" class="hidden pt-4 mt-4 border-t border-green-700"></div>
                 <div class="absolute bottom-0 left-0 w-full p-4 border-t border-green-700">
                     <div class="flex items-center">
-                        <img id="user-avatar" src="https://placehold.co/40x40/e2e8f0/475569?text=U" alt="User Avatar" class="w-10 h-10 rounded-full">
                         <div class="ml-3">
                             <p id="user-name" class="font-semibold text-white">Nama User</p>
                             <a href="#" id="logout-button" class="text-sm text-green-200 hover:text-white">Logout <i data-lucide="log-out" class="inline w-4 h-4"></i></a>
@@ -99,226 +57,95 @@
                     </div>
                 </div>
             </aside>
-
-            <!-- Main Content -->
-            <div class="flex-1 flex flex-col">
-                <header class="flex items-center justify-between p-4 bg-white border-b">
-                    <button id="menu-button" class="p-2 text-slate-600 rounded-md md:hidden hover:bg-slate-100">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                    <h1 id="page-title" class="text-xl font-semibold text-slate-700">Dashboard</h1>
-                    <div></div>
-                </header>
-                <main id="main-content" class="flex-1 p-4 sm:p-6 overflow-y-auto">
-                    <!-- KONTEN DASHBOARD DIMULAI DI SINI -->
-                    <div id="dashboard-page">
-                        <!-- Bagian Rekap Absensi -->
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-800 mb-4">Rekap Absensi Hari Ini</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <!-- Kartu Fajar -->
-                                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex items-center justify-between">
-                                            <h3 class="text-lg font-semibold text-slate-700">Fajar</h3>
-                                            <i data-lucide="sunrise" class="text-yellow-500"></i>
-                                        </div>
-                                        <p class="text-3xl font-bold text-slate-900 mt-2">120 <span class="text-base font-normal text-slate-500">/ 150</span></p>
-                                    </div>
-                                    <div class="mt-4 text-sm">
-                                        <p class="text-green-600">Hadir: 120</p>
-                                        <p class="text-yellow-600">Izin: 10</p>
-                                        <p class="text-red-600">Alfa: 20</p>
-                                    </div>
-                                </div>
-                                <!-- Kartu Pagi -->
-                                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex items-center justify-between">
-                                            <h3 class="text-lg font-semibold text-slate-700">Pagi</h3>
-                                            <i data-lucide="sun" class="text-orange-500"></i>
-                                        </div>
-                                        <p class="text-3xl font-bold text-slate-900 mt-2">145 <span class="text-base font-normal text-slate-500">/ 150</span></p>
-                                    </div>
-                                    <div class="mt-4 text-sm">
-                                        <p class="text-green-600">Hadir: 145</p>
-                                        <p class="text-yellow-600">Izin: 2</p>
-                                        <p class="text-red-600">Alfa: 3</p>
-                                    </div>
-                                </div>
-                                <!-- Kartu Siang -->
-                                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex items-center justify-between">
-                                            <h3 class="text-lg font-semibold text-slate-700">Siang</h3>
-                                            <i data-lucide="cloud-sun" class="text-sky-500"></i>
-                                        </div>
-                                        <p class="text-gray-400 mt-2">Belum ada data</p>
-                                    </div>
-                                </div>
-                                <!-- Kartu Malam -->
-                                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex items-center justify-between">
-                                            <h3 class="text-lg font-semibold text-slate-700">Malam</h3>
-                                            <i data-lucide="moon" class="text-indigo-500"></i>
-                                        </div>
-                                        <p class="text-gray-400 mt-2">Belum ada data</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bagian Kegiatan Mendatang -->
-                        <div class="mt-8">
-                            <h2 class="text-2xl font-bold text-slate-800 mb-4">Kegiatan Mendatang</h2>
-                            <div class="bg-white p-6 rounded-lg shadow-md">
-                                <ul class="space-y-4">
-                                    <li class="flex items-start space-x-4">
-                                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex flex-col items-center justify-center">
-                                            <span class="text-xs font-bold">AGU</span>
-                                            <span class="text-xl font-bold">17</span>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold text-slate-800">Lomba Hari Kemerdekaan</h4>
-                                            <p class="text-sm text-slate-500">Kategori: Acara | 17 Agustus 2025</p>
-                                        </div>
-                                    </li>
-                                    <li class="flex items-start space-x-4">
-                                        <div class="flex-shrink-0 w-12 h-12 bg-green-100 text-green-600 rounded-lg flex flex-col items-center justify-center">
-                                            <span class="text-xs font-bold">SEP</span>
-                                            <span class="text-xl font-bold">01</span>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold text-slate-800">Musyawarah Bulanan</h4>
-                                            <p class="text-sm text-slate-500">Kategori: Musyawarah | 01 September 2025</p>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- KONTEN HALAMAN LAIN AKAN DI-LOAD DI SINI -->
-                </main>
-            </div>
-            <div id="sidebar-overlay" class="fixed inset-0 z-20 bg-black bg-opacity-50 hidden md:hidden"></div>
+            <main class="flex-1 p-6 overflow-y-auto">
+                <h1 class="text-2xl font-bold">Dashboard</h1>
+                <p>Selamat datang! Halaman dashboard akan kita bangun di sini.</p>
+            </main>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Import fungsi yang kita butuhkan dari Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, enableNetwork } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <script>
+        // =======================================================================
+        // URL APPS SCRIPT ANDA
+        // =======================================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVPuRb957p3X_u79LNn8XkYTj5fLC0M_d5VllCPO-AcJSiNtqxMZU2wD4exau8r3-9/exec";
+        // =======================================================================
 
-        // =================================================================================
-        // Konfigurasi Firebase Anda
-        // =================================================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBjCGlGgl2gFQliabpoFPbF68cg1aP2M44",
-            authDomain: "myalbana-54ec0.firebaseapp.com",
-            projectId: "myalbana-54ec0",
-            storageBucket: "myalbana-54ec0.appspot.com",
-            messagingSenderId: "586743898865",
-            appId: "1:586743898865:web:3ae4985c94a7c5a127ff50",
-            measurementId: "G-6KZKE2FSFY"
-        };
-        // =================================================================================
-
-        // Inisialisasi Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // --- Elemen-elemen HTML ---
         const loginContainer = document.getElementById('login-container');
         const appContainer = document.getElementById('app-container');
         const loginForm = document.getElementById('login-form');
         const loginError = document.getElementById('login-error');
         const logoutButton = document.getElementById('logout-button');
-        const adminMenu = document.getElementById('admin-menu');
         const userNameDisplay = document.getElementById('user-name');
-        
-        // --- LOGIKA UTAMA APLIKASI ---
+        const loginButtonText = document.getElementById('login-button-text');
+        const loginSpinner = document.getElementById('login-spinner');
 
-        // 1. Pantau status login pengguna
-        onAuthStateChanged(auth, async (user) => {
+        // Cek jika ada data user di localStorage saat halaman dimuat
+        function checkLoginStatus() {
+            const user = localStorage.getItem('myAlbanaUser');
             if (user) {
-                // Jika ada user yang login
-                loginContainer.classList.add('hidden');
-                appContainer.classList.remove('hidden');
-                userNameDisplay.textContent = "Memuat data..."; // Tampilkan status loading
-
-                await fetchUserData(user);
-
+                const userData = JSON.parse(user);
+                showApp(userData);
             } else {
-                // Jika tidak ada user yang login
-                loginContainer.classList.remove('hidden');
-                appContainer.classList.add('hidden');
-                adminMenu.classList.add('hidden'); // Sembunyikan menu admin saat logout
-            }
-        });
-
-        // 2. Fungsi untuk mengambil data user dan mengatur UI
-        async function fetchUserData(user) {
-            const userDocRef = doc(db, "users", user.uid);
-            
-            try {
-                const userDoc = await getDoc(userDocRef);
-
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    userNameDisplay.textContent = userData.namaLengkap;
-
-                    if (userData.role === 'Admin') {
-                        adminMenu.classList.remove('hidden');
-                    } else {
-                        adminMenu.classList.add('hidden');
-                    }
-                } else {
-                    userNameDisplay.textContent = "Data tidak ada";
-                    adminMenu.classList.add('hidden');
-                }
-            } catch (error) {
-                console.error("ERROR saat mengambil data dari Firestore:", error);
-                userNameDisplay.textContent = "Error DB";
+                showLogin();
             }
         }
 
-        // 3. Event listener untuk form login
-        loginForm.addEventListener('submit', (e) => {
+        function showApp(userData) {
+            loginContainer.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            userNameDisplay.textContent = userData.namaLengkap;
+            // Nanti kita tambahkan logika untuk menampilkan menu berdasarkan role
+        }
+
+        function showLogin() {
+            loginContainer.classList.remove('hidden');
+            appContainer.classList.add('hidden');
+        }
+
+        loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
+            
+            loginButtonText.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
             loginError.textContent = '';
 
-            signInWithEmailAndPassword(auth, email, password)
-                .catch((error) => {
-                    console.error("Error login:", error.code, error.message);
-                    loginError.textContent = "Email atau password salah. Silakan coba lagi.";
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            
+            const url = `${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Simpan data user ke localStorage
+                        localStorage.setItem('myAlbanaUser', JSON.stringify(data.user));
+                        showApp(data.user);
+                    } else {
+                        loginError.textContent = 'Email atau password salah.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loginError.textContent = 'Terjadi kesalahan. Coba lagi.';
+                })
+                .finally(() => {
+                    loginButtonText.classList.remove('hidden');
+                    loginSpinner.classList.add('hidden');
                 });
         });
 
-        // 4. Event listener untuk tombol logout
-        logoutButton.addEventListener('click', (e) => {
+        logoutButton.addEventListener('click', function(e) {
             e.preventDefault();
-            signOut(auth);
+            // Hapus data dari localStorage
+            localStorage.removeItem('myAlbanaUser');
+            showLogin();
         });
 
-        // Panggil fungsi untuk membuat ikon Lucide
+        // Panggil fungsi saat halaman pertama kali dimuat
+        checkLoginStatus();
         lucide.createIcons();
     </script>
 </body>
 </html>
-```
-
-**Tugasmu sekarang (sangat penting):**
-1.  Buka websitemu di `sms.ponpesburhanalbana.web.id`.
-2.  Lakukan **Hard Refresh**:
-    * Di Windows/Linux: Tekan `Ctrl + Shift + R`.
-    * Di Mac: Tekan `Cmd + Shift + R`.
-    Ini akan memaksa browser untuk mengunduh versi terbaru dari file, mengabaikan cache.
-3.  Lihat hasilnya.
-
-Seharusnya sekarang kamu akan lihat tulisan "Memuat data..." sesaat, lalu berubah menjadi namamu, dan menu admin akan muncul. Jika masih gagal, berarti ada masalah lain yang sangat spesifik yang perlu kita selidiki lebih dal
