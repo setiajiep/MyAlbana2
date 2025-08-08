@@ -106,11 +106,99 @@
                     <button id="menu-button" class="p-2 text-slate-600 rounded-md md:hidden hover:bg-slate-100">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
-                    <h1 class="text-xl font-semibold text-slate-700">Dashboard</h1>
+                    <h1 id="page-title" class="text-xl font-semibold text-slate-700">Dashboard</h1>
                     <div></div>
                 </header>
-                <main class="flex-1 p-6 overflow-y-auto">
-                    <!-- Konten utama akan muncul di sini -->
+                <main id="main-content" class="flex-1 p-4 sm:p-6 overflow-y-auto">
+                    <!-- KONTEN DASHBOARD DIMULAI DI SINI -->
+                    <div id="dashboard-page">
+                        <!-- Bagian Rekap Absensi -->
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-4">Rekap Absensi Hari Ini</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <!-- Kartu Fajar -->
+                                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-semibold text-slate-700">Fajar</h3>
+                                            <i data-lucide="sunrise" class="text-yellow-500"></i>
+                                        </div>
+                                        <p class="text-3xl font-bold text-slate-900 mt-2">120 <span class="text-base font-normal text-slate-500">/ 150</span></p>
+                                    </div>
+                                    <div class="mt-4 text-sm">
+                                        <p class="text-green-600">Hadir: 120</p>
+                                        <p class="text-yellow-600">Izin: 10</p>
+                                        <p class="text-red-600">Alfa: 20</p>
+                                    </div>
+                                </div>
+                                <!-- Kartu Pagi -->
+                                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-semibold text-slate-700">Pagi</h3>
+                                            <i data-lucide="sun" class="text-orange-500"></i>
+                                        </div>
+                                        <p class="text-3xl font-bold text-slate-900 mt-2">145 <span class="text-base font-normal text-slate-500">/ 150</span></p>
+                                    </div>
+                                    <div class="mt-4 text-sm">
+                                        <p class="text-green-600">Hadir: 145</p>
+                                        <p class="text-yellow-600">Izin: 2</p>
+                                        <p class="text-red-600">Alfa: 3</p>
+                                    </div>
+                                </div>
+                                <!-- Kartu Siang -->
+                                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-semibold text-slate-700">Siang</h3>
+                                            <i data-lucide="cloud-sun" class="text-sky-500"></i>
+                                        </div>
+                                        <p class="text-gray-400 mt-2">Belum ada data</p>
+                                    </div>
+                                </div>
+                                <!-- Kartu Malam -->
+                                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-semibold text-slate-700">Malam</h3>
+                                            <i data-lucide="moon" class="text-indigo-500"></i>
+                                        </div>
+                                        <p class="text-gray-400 mt-2">Belum ada data</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bagian Kegiatan Mendatang -->
+                        <div class="mt-8">
+                            <h2 class="text-2xl font-bold text-slate-800 mb-4">Kegiatan Mendatang</h2>
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <ul class="space-y-4">
+                                    <li class="flex items-start space-x-4">
+                                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex flex-col items-center justify-center">
+                                            <span class="text-xs font-bold">AGU</span>
+                                            <span class="text-xl font-bold">17</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-slate-800">Lomba Hari Kemerdekaan</h4>
+                                            <p class="text-sm text-slate-500">Kategori: Acara | 17 Agustus 2025</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start space-x-4">
+                                        <div class="flex-shrink-0 w-12 h-12 bg-green-100 text-green-600 rounded-lg flex flex-col items-center justify-center">
+                                            <span class="text-xs font-bold">SEP</span>
+                                            <span class="text-xl font-bold">01</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-slate-800">Musyawarah Bulanan</h4>
+                                            <p class="text-sm text-slate-500">Kategori: Musyawarah | 01 September 2025</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- KONTEN HALAMAN LAIN AKAN DI-LOAD DI SINI -->
                 </main>
             </div>
             <div id="sidebar-overlay" class="fixed inset-0 z-20 bg-black bg-opacity-50 hidden md:hidden"></div>
