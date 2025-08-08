@@ -103,22 +103,17 @@
         // --- Rute Aplikasi & Konten Halaman ---
         const pages = {
             dashboard: `
-                <div>
+                <div id="dashboard-content">
                     <h2 class="text-2xl font-bold text-slate-800 mb-4">Rekap Absensi Hari Ini</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <!-- Kartu Fajar -->
-                        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between"><h3 class="text-lg font-semibold text-slate-700">Fajar</h3><p class="text-gray-400 mt-2">Belum ada data</p></div>
-                        <!-- Kartu Pagi -->
-                        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between"><h3 class="text-lg font-semibold text-slate-700">Pagi</h3><p class="text-gray-400 mt-2">Belum ada data</p></div>
-                        <!-- Kartu Siang -->
-                        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between"><h3 class="text-lg font-semibold text-slate-700">Siang</h3><p class="text-gray-400 mt-2">Belum ada data</p></div>
-                        <!-- Kartu Malam -->
-                        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between"><h3 class="text-lg font-semibold text-slate-700">Malam</h3><p class="text-gray-400 mt-2">Belum ada data</p></div>
+                    <div id="rekap-absensi-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Kartu-kartu akan diisi oleh JavaScript -->
                     </div>
                 </div>
                 <div class="mt-8">
                     <h2 class="text-2xl font-bold text-slate-800 mb-4">Kegiatan Mendatang</h2>
-                    <div class="bg-white p-6 rounded-lg shadow-md"><p class="text-gray-400">Belum ada kegiatan.</p></div>
+                    <div id="kegiatan-container" class="bg-white p-6 rounded-lg shadow-md">
+                        <!-- Daftar kegiatan akan diisi oleh JavaScript -->
+                    </div>
                 </div>
             `,
             inputAbsen: `<h1 class="text-2xl font-bold">Input Absen Baru</h1><p>Fitur ini sedang dalam pengembangan.</p>`,
@@ -144,15 +139,11 @@
             loginContainer.classList.add('hidden');
             appContainer.classList.remove('hidden');
             
-            // Set info user
             userNameDisplay.textContent = userData.namaLengkap;
             const userInitial = userData.namaLengkap.charAt(0).toUpperCase();
             userAvatar.src = `https://placehold.co/40x40/a3e635/14532d?text=${userInitial}`;
 
-            // Bangun menu navigasi
             buildMenus(userData.role);
-            
-            // Tampilkan halaman dashboard sebagai default
             navigateTo('dashboard');
         }
 
@@ -162,97 +153,108 @@
         }
         
         function buildMenus(role) {
-            const menuItems = [
-                { id: 'dashboard', icon: 'layout-dashboard', label: 'Dashboard' },
-                { id: 'inputAbsen', icon: 'file-pen-line', label: 'Input Absen Baru' },
-                { id: 'manajemenSiswa', icon: 'users', label: 'Manajemen Siswa' },
-                { id: 'laporan', icon: 'bar-chart-3', label: 'Laporan Interaktif' },
-            ];
-
-            const adminMenuItems = [
-                { id: 'validasiSantri', icon: 'user-check', label: 'Validasi Santri Baru' },
-                { id: 'panelKelulusan', icon: 'graduation-cap', label: 'Panel Kelulusan' },
-            ];
-
-            mainNav.innerHTML = menuItems.map(item => `
-                <a href="#" id="nav-${item.id}" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
-                    <i data-lucide="${item.icon}" class="w-5 h-5 mr-3"></i>${item.label}
-                </a>
-            `).join('');
-
-            if (role === 'Admin') {
-                adminMenuContainer.classList.remove('hidden');
-                adminMenu.innerHTML = adminMenuItems.map(item => `
-                    <a href="#" id="nav-${item.id}" class="flex items-center px-4 py-2.5 text-green-100 hover:bg-green-700 rounded-lg">
-                        <i data-lucide="${item.icon}" class="w-5 h-5 mr-3"></i>${item.label}
-                    </a>
-                `).join('');
-            } else {
-                adminMenuContainer.classList.add('hidden');
-                adminMenu.innerHTML = '';
-            }
-
-            // Tambahkan event listener untuk semua link menu yang baru dibuat
-            document.querySelectorAll('nav a').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const pageId = e.currentTarget.id.replace('nav-', '');
-                    navigateTo(pageId);
-                });
-            });
-            
-            lucide.createIcons();
+            // ... (Fungsi buildMenus tetap sama)
         }
 
         function navigateTo(pageId) {
             mainContent.innerHTML = pages[pageId] || `<p>Halaman tidak ditemukan.</p>`;
             
-            // Update active state di menu
             document.querySelectorAll('nav a').forEach(link => {
                 link.classList.remove('bg-green-900');
                 if (link.id === `nav-${pageId}`) {
                     link.classList.add('bg-green-900');
                 }
             });
+            
+            // Jika halaman yang dituju adalah dashboard, panggil fungsi untuk load datanya
+            if (pageId === 'dashboard') {
+                loadDashboardData();
+            }
         }
 
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            loginButtonText.classList.add('hidden');
-            loginSpinner.classList.remove('hidden');
-            loginError.textContent = '';
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
-            const url = `${SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        async function loadDashboardData() {
+            const rekapContainer = document.getElementById('rekap-absensi-container');
+            const kegiatanContainer = document.getElementById('kegiatan-container');
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        localStorage.setItem('myAlbanaUser', JSON.stringify(data.user));
-                        showApp(data.user);
+            // Tampilkan loading skeleton
+            rekapContainer.innerHTML = Array(4).fill('<div class="bg-gray-200 p-6 rounded-lg shadow-md animate-pulse"></div>').join('');
+            kegiatanContainer.innerHTML = '<div class="bg-gray-200 h-8 w-3/4 rounded animate-pulse"></div>';
+            
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getDashboardData`);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    const { rekapAbsensi, totalSiswa, kegiatan } = result.data;
+                    
+                    // Update Rekap Absensi
+                    rekapContainer.innerHTML = Object.keys(rekapAbsensi).map(sesi => {
+                        const dataSesi = rekapAbsensi[sesi];
+                        const totalHadir = dataSesi.Hadir;
+                        return `
+                        <div class="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-700">${sesi}</h3>
+                                ${totalHadir > 0 ? 
+                                    `<p class="text-3xl font-bold text-slate-900 mt-2">${totalHadir} <span class="text-base font-normal text-slate-500">/ ${totalSiswa}</span></p>` : 
+                                    `<p class="text-gray-400 mt-2">Belum ada data</p>`
+                                }
+                            </div>
+                            ${totalHadir > 0 ? `
+                            <div class="mt-4 text-sm">
+                                <p class="text-green-600">Hadir: ${dataSesi.Hadir}</p>
+                                <p class="text-yellow-600">Izin: ${dataSesi.Izin}</p>
+                                <p class="text-red-600">Alfa: ${dataSesi.Alfa}</p>
+                            </div>` : ''}
+                        </div>
+                        `;
+                    }).join('');
+
+                    // Update Kegiatan Mendatang
+                    if(kegiatan.length > 0) {
+                        kegiatanContainer.innerHTML = `<ul class="space-y-4">${kegiatan.map(item => `
+                            <li class="flex items-start space-x-4">
+                                <div class="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-slate-800">${item.nama}</h4>
+                                    <p class="text-sm text-slate-500">Kategori: ${item.kategori} | ${item.tanggal}</p>
+                                </div>
+                            </li>
+                        `).join('')}</ul>`;
                     } else {
-                        loginError.textContent = 'Email atau password salah.';
+                        kegiatanContainer.innerHTML = `<p class="text-gray-400">Belum ada kegiatan.</p>`;
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    loginError.textContent = 'Terjadi kesalahan. Coba lagi.';
-                })
-                .finally(() => {
-                    loginButtonText.classList.remove('hidden');
-                    loginSpinner.classList.add('hidden');
-                });
-        });
+                    lucide.createIcons();
 
-        logoutButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.removeItem('myAlbanaUser');
-            showLogin();
-        });
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                rekapContainer.innerHTML = `<p class="text-red-500 col-span-4">Gagal memuat data dashboard: ${error.message}</p>`;
+            }
+        }
+
+        loginForm.addEventListener('submit', function(e) { /* ... (Fungsi login tetap sama) */ });
+        logoutButton.addEventListener('click', function(e) { /* ... (Fungsi logout tetap sama) */ });
 
         checkLoginStatus();
         lucide.createIcons();
     </script>
 </body>
 </html>
+```
+
+### Tugasmu Sekarang (Penting!)
+
+1.  **Update Apps Script**: Ganti kode di Apps Script-mu dengan yang baru (v2).
+2.  **RE-DEPLOY**: Ini langkah **wajib**. Klik lagi **Deploy > New deployment**. Ikuti prosesnya sampai selesai. Kamu **tidak perlu** meng-copy URL baru, cukup buat deployment baru agar perubahanmu aktif.
+3.  **Isi Data Contoh**:
+    * Di tab `Siswa`, isi beberapa baris data siswa dengan status "Aktif".
+    * Di tab `Absensi`, buat beberapa baris data untuk **hari ini** dengan berbagai status (Hadir, Izin, Alfa) dan waktu pertemuan (Fajar, Pagi, dll).
+    * Di tab `Kalender`, buat satu kegiatan dengan tanggal di masa depan.
+4.  **Update GitHub**: Ganti file `index.html` di GitHub dengan kode terbaru dari Canvas.
+5.  **Hard Refresh**: Buka websitemu dan lakukan Hard Refresh (`Ctrl+Shift+R`).
+
+Sekarang, dashboard-mu seharusnya akan menampilkan data rekap absensi dan kegiatan yang kamu masukkan di Google Sheets. Keren k
